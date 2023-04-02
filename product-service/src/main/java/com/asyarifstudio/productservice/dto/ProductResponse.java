@@ -10,4 +10,6 @@ import lombok.Data;
 public class ProductResponse {
     String id;
     String name;
+    Double averageReviewScore;
+    Long numberOfRevierws;
 }
