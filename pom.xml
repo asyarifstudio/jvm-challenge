@@ -15,12 +15,25 @@
 	<description>JVM Challenge</description>
 	<properties>
 		<java.version>11</java.version>
+		<spring-cloud.version>2021.0.6</spring-cloud.version>
 	</properties>
 	<packaging>pom</packaging>
 	<modules>
 		<module>product-service</module>
 		<module>review-service</module>
+		<module>discovery-server</module>
 	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<plugins>
 			<plugin>
