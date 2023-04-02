@@ -15,15 +15,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     
     public ProductResponse getProductById(String id){
         
         ProductResponse productResponse =  ProductResponse.builder().id(id).name("test").build();
 
         //fetch the review to the review service
-        ReviewResponse[] reviews = webClient.get()
-            .uri("http://localhost:8081/api/review/"+id)
+        ReviewResponse[] reviews = webClientBuilder.build().get()
+            .uri("http://review-service/api/review/"+id)
             .retrieve()
             .bodyToMono(ReviewResponse[].class)
             .block();
