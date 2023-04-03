@@ -44,6 +44,19 @@ services:
             timeout: 20s
             retries: 10
     
+    # redis:
+    #   container_name: redis
+    #   image: redis:6.2
+    #   ports:
+    #     - "6379:6379"
+    #   volumes:
+    #     - ./redis:/data
+    #   networks:
+    #     - jvm-challenge
+    #   command: redis-server --requirepass redispassword --save 20 1 --loglevel warning
+
+
+
     keycloak:
         container_name: keycloak
         image: quay.io/keycloak/keycloak:20.0
@@ -93,7 +106,7 @@ services:
         environment:
             - SPRING_PROFILES_ACTIVE=docker
         ports:
-          - "8181:8080"
+          - "8181:8181"
         expose:
           - "8181"
         depends_on:
@@ -116,6 +129,8 @@ services:
                 condition: service_healthy
             discovery-server:
                 condition: service_started
+            # redis:
+            #   condition: service_started
         build: ./review-service
         networks:
           - jvm-challenge
