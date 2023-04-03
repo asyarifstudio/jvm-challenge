@@ -4,6 +4,7 @@ services:
     mongo-review:
         container_name: mongo-review
         image: mongo:4.4.2
+        command: mongod
         restart: unless-stopped
         ports:
             - "27017:27017"
@@ -11,12 +12,67 @@ services:
             - "27017"
         volumes:
             - ./mongo-data:/data/db
+            - ./mongo-data-initial:/docker-entrypoint-initdb.d
         networks:
           - jvm-challenge
         environment:
-            - MONGO_INITDB_ROOT_USERNAME=admin
-            - MONGO_INITDB_ROOT_PASSWORD=admin
-            
+            MONGO_INITDB_ROOT_USERNAME: admin
+            MONGO_INITDB_ROOT_PASSWORD: admin
+            MONGO_INITDB_DATABASE: review-service
+            MONGO_INITDB_SCRIPT: /docker-entrypoint-initdb.d/init-script.js
+        healthcheck:
+          test: echo 'db.runCommand("ping").ok'
+          interval: 10s
+          timeout: 10s
+          retries: 5
+          start_period: 40s
+
+    mysql-keycloak:
+        container_name: mysql-keycloak
+        image: mysql:8.0
+        volumes:
+          - ./mysql_keycloak:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: keycloak
+            MYSQL_USER: keycloak
+            MYSQL_PASSWORD: password
+        networks:
+          - jvm-challenge
+        healthcheck:
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+            timeout: 20s
+            retries: 10
+    
+    keycloak:
+        container_name: keycloak
+        image: quay.io/keycloak/keycloak:20.0
+        command: ["start-dev","--import-realm","--health-enabled=true"]
+        environment:
+            DB_VENDOR: MYSQL
+            DB_ADDR: mysql
+            DB_DATABASE: keycloak
+            DB_USER: keycloak
+            DB_PASSWORD: password
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: admin
+        ports:
+            - "8181:8080"
+        expose:
+          - "8181"
+        volumes:
+            - ./realms/:/opt/keycloak/data/import/
+        depends_on:
+            mysql-keycloak:
+                condition: service_healthy
+        networks:
+          - jvm-challenge
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+            start_period: 120s
+            interval: 30s
+            retries: 5
+            timeout: 5s
     
     discovery-server:
         container_name: discovery-server    
@@ -40,7 +96,10 @@ services:
         expose:
           - "8080"
         depends_on:
-          - discovery-server
+            discovery-server:
+                condition: service_started
+            keycloak:
+                condition: service_healthy
         build: ./api-gateway
         networks:
           - jvm-challenge
@@ -52,8 +111,10 @@ services:
         environment:
             - SPRING_PROFILES_ACTIVE=docker
         depends_on:
-            - mongo-review
-            - discovery-server
+            mongo-review:
+                condition: service_healthy
+            discovery-server:
+                condition: service_started
         build: ./review-service
         networks:
           - jvm-challenge
