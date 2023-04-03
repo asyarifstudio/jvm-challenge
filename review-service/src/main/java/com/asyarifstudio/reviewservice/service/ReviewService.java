@@ -23,7 +23,7 @@ public class ReviewService {
     
     private final ReviewRepository repository;
 
-    @CacheEvict(value = "reviews",allEntries = true)
+    @CacheEvict(value = "reviews",key = "#reviewRequest.productId")
     public void addReview(ReviewRequest reviewRequest){
         Review review = Review.builder()
                         .productId(reviewRequest.getProductId())
@@ -33,7 +33,7 @@ public class ReviewService {
 
     }
 
-    @Cacheable(value = "reviews")
+    @Cacheable(value = "reviews",key = "#productId")
     public List<ReviewResponse> getAllProductReview(String productId){
         List<Review> reviews = repository.findByProductId(productId);
         return reviews.stream().map(review ->
@@ -45,7 +45,7 @@ public class ReviewService {
         ).collect(Collectors.toList());
     }
 
-    @CacheEvict(value = "reviews",allEntries = true)
+    @CacheEvict(value = "reviews",key = "#reviewRequest.productId")
     public boolean updateReview(String id,ReviewRequest reviewRequest){
         if(repository.existsById(id)){
             Review review = Review.builder()
@@ -59,7 +59,7 @@ public class ReviewService {
             return false;
         }
     }
-    @CacheEvict(value = "reviews",allEntries = true)
+    @CacheEvict(value = "reviews",allEntries = true/** delete cache for now, need to find a way to get the productId from id during cache eviction */ )
     public boolean deleteReview(String id){
         if(repository.existsById(id)){
             repository.deleteById(id);
