@@ -32,7 +32,7 @@ public class ReviewService {
 
     }
 
-    @Cacheable(value = "reviews", key = "review.productId")
+    @Cacheable(value = "reviews")
     public List<ReviewResponse> getAllProductReview(String productId){
         List<Review> reviews = repository.findByProductId(productId);
         return reviews.stream().map(review ->
@@ -44,7 +44,7 @@ public class ReviewService {
         ).collect(Collectors.toList());
     }
 
-    @CachePut(value = "reviews", key = "review.productId")
+    @CacheEvict(value = "reviews",allEntries = true)
     public boolean updateReview(String id,ReviewRequest reviewRequest){
         if(repository.existsById(id)){
             Review review = Review.builder()
@@ -58,7 +58,7 @@ public class ReviewService {
             return false;
         }
     }
-    @CacheEvict(value = "reviews", key = "review.productId")
+    @CacheEvict(value = "reviews",allEntries = true)
     public boolean deleteReview(String id){
         if(repository.existsById(id)){
             repository.deleteById(id);
