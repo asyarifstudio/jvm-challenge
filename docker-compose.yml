@@ -44,16 +44,16 @@ services:
             timeout: 20s
             retries: 10
     
-    # redis:
-    #   container_name: redis
-    #   image: redis:6.2
-    #   ports:
-    #     - "6379:6379"
-    #   volumes:
-    #     - ./redis:/data
-    #   networks:
-    #     - jvm-challenge
-    #   command: redis-server --requirepass redispassword --save 20 1 --loglevel warning
+    redis:
+      container_name: redis
+      image: redis:6.2
+      ports:
+        - "6379:6379"
+      volumes:
+        - ./redis:/data
+      networks:
+        - jvm-challenge
+      command: redis-server --requirepass redispassword --save 20 1 --loglevel warning
 
 
 
@@ -129,8 +129,8 @@ services:
                 condition: service_healthy
             discovery-server:
                 condition: service_started
-            # redis:
-            #   condition: service_started
+            redis:
+              condition: service_started
         build: ./review-service
         networks:
           - jvm-challenge

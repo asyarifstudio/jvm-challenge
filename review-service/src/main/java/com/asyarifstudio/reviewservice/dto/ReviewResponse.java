@@ -1,5 +1,7 @@
 package com.asyarifstudio.reviewservice.dto;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class ReviewResponse {
+public class ReviewResponse implements Serializable {
     String id;
 
     /**
