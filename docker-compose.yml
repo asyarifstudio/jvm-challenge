@@ -1,0 +1,74 @@
+---
+version: '3'
+services:
+    mongo-review:
+        container_name: mongo-review
+        image: mongo:4.4.2
+        restart: unless-stopped
+        ports:
+            - "27017:27017"
+        expose:
+            - "27017"
+        volumes:
+            - ./mongo-data:/data/db
+        networks:
+          - jvm-challenge
+            
+    
+    discovery-server:
+        container_name: discovery-server    
+        image: discovery-server:latest
+        ports:
+          - "8761:8761"
+        expose:
+          - "8761"
+        build: ./discovery-server
+        networks:
+          - jvm-challenge
+        
+    
+    api-gateway:
+        container_name: api-gateway
+        image: api-gateway:latest
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+        ports:
+          - "8080:8080"
+        expose:
+          - "8080"
+        depends_on:
+          - discovery-server
+        build: ./api-gateway
+        networks:
+          - jvm-challenge
+        
+    
+    review-service:
+        container_name: review-service
+        image: review-server:latest
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+        depends_on:
+            - mongo-review
+            - discovery-server
+        build: ./review-service
+        networks:
+          - jvm-challenge
+        
+    
+    product-service:
+        container_name: product-service
+        image: product-service:latest
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+        depends_on:
+            - discovery-server
+        build: ./product-service
+        networks:
+          - jvm-challenge
+        
+    
+networks:
+  jvm-challenge:
+    name: jvm-challenge
+
