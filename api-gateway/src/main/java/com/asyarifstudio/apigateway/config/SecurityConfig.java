@@ -20,6 +20,8 @@ public class SecurityConfig {
                 .authenticated()
                 .pathMatchers(HttpMethod.PUT,"/api/review/**")
                 .authenticated()
+                .pathMatchers(HttpMethod.DELETE, "/api/review/**")
+                .authenticated()
                 .anyExchange()
                 .permitAll()
             ).oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::jwt);
