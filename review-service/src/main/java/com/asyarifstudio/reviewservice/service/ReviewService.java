@@ -23,6 +23,7 @@ public class ReviewService {
     
     private final ReviewRepository repository;
 
+    @CacheEvict(value = "reviews",allEntries = true)
     public void addReview(ReviewRequest reviewRequest){
         Review review = Review.builder()
                         .productId(reviewRequest.getProductId())
