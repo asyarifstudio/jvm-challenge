@@ -19,6 +19,7 @@ public class ProductService {
     
     public ProductResponse getProductById(String id){
         
+        //because provide API in https://adidas.co.uk/api is not available, just mock the product here
         ProductResponse productResponse =  ProductResponse.builder().id(id).name("test").build();
 
         //fetch the review to the review service
