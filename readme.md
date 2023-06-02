@@ -41,6 +41,32 @@ C4Context
     Rel(redis,mongo,"fetch")
     UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 ```
+
+## Product Service Data
+
+Because the URL provided by the challenge is not available at the time this challenge was developed, the product-service generate dummy data based on the `id` requested in the GET Request. it means that product-service with always return data with the same ID in the request.
+
+## Data Format
+### product
+
+```
+{
+    id:string, 
+    name:string,
+    averageReviewScore:number,
+    numberOfRevierws:number,
+}
+```
+
+### review
+```
+{
+    id:string,
+    productId:string,
+    reviewScore:number
+}
+```
+
 # Compilation
 To compile, simply run `mvn package` from the root directory
 
@@ -48,6 +74,28 @@ To compile, simply run `mvn package` from the root directory
 before deploying, please modify the host DNS in your machine to allow keycloak iss resolution. 
 - Windows : add `127.0.0.1 keycloak` to C:\Windows\System32\drivers\etc\hosts
 - Linux/Mac : add `127.0.0.1 keycloak` to /etc/host
-after that, you can deploy the microservice using command `docker compose up -d`
-the gateway is available in http://localhost:8181
 
+after that, you can deploy the microservice using command `docker compose up -d`. the gateway is available in http://localhost:8181, and the keycloak server is available in http://localhost:8080
+
+# Testing
+
+Unit test is implemented, however you can also use below curl command to test the service.
+
+1. Get Product with ID `test`
+```
+curl --location --request GET 'localhost:8181/api/product/test'
+```
+2. Get Review of product with ID `test`
+```
+curl --location --request GET 'localhost:8181/api/review/test'
+```
+3. Add Review for Product with ID `test`. you can use POSTMAN to get the `<access-token>` by requesting token from http://keycloak:8080/realms/jvm-challenge/protocol/openid-connect/token with client-id `spring-boot-client` and client secret `P9lmr07NYcuedKur61aclB2J5x16sy3q`
+```
+curl --location --request POST 'localhost:8181/api/review' \
+--header 'Authorization: Bearer <access-token>' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "productId":"test",
+    "reviewScore":5
+}'
+```
