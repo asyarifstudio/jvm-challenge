@@ -2,6 +2,9 @@
 This microservice is to answer the challenge. It is built using spring with below requirement
 - openjdk version 11
 - mvn version 3.6.3
+- Docker version 23.0.2, build 569dd73
+
+other requirements are listed in the [root pom.xml](pom.xml), project pom.xml, and [docker-compose.yml](docker-compose.yml)
 
 ## Architecture
 
